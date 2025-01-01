@@ -1,0 +1,3 @@
+Project: StarWars
+Owner: YourName
+Environment: ${self:provider.stage} 

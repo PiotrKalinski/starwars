@@ -1,0 +1,124 @@
+Resources:
+  MyDynamoDbTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ${self:custom.characterTableName}
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+
+  DynamoDbThrottledRequestsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: ${self:custom.dynamoDbThrottledRequestsAlarmName}
+      ComparisonOperator: GreaterThanThreshold
+      EvaluationPeriods: 1
+      MetricName: "ThrottledRequests"
+      Namespace: "AWS/DynamoDB"
+      Period: 300
+      Statistic: Sum
+      Threshold: 1
+      Dimensions:
+        - Name: TableName
+          Value: ${self:custom.characterTableName}
+      AlarmDescription: "Alarm if DynamoDB throttled requests exceed threshold"
+
+  # IAM Role for putCharacter Lambda
+  PutCharacterLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${AWS::StackName}-PutCharacterLambdaExecutionRole"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: PutCharacterPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: dynamodb:PutItem
+                Resource: !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/${self:custom.characterTableName}
+
+  # IAM Role for getCharacter Lambda
+  GetCharacterLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${AWS::StackName}-GetCharacterLambdaExecutionRole"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: GetCharacterPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: dynamodb:GetItem
+                Resource: !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/${self:custom.characterTableName}
+
+  # IAM Role for listCharacters Lambda
+  ListCharactersLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${AWS::StackName}-ListCharactersLambdaExecutionRole"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: ListCharactersPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: dynamodb:Scan
+                Resource: !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/${self:custom.characterTableName}
+
+  # IAM Role for deleteCharacter Lambda
+  DeleteCharacterLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${AWS::StackName}-DeleteCharacterLambdaExecutionRole"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: DeleteCharacterPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:DeleteItem
+                  - dynamodb:GetItem
+                Resource: !Sub arn:aws:dynamodb:${self:provider.region}:${AWS::AccountId}:table/${self:custom.characterTableName}

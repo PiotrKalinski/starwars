@@ -1,0 +1,81 @@
+openapi: 3.0.0
+info:
+  title: Star Wars Serverless API
+  description: A serverless REST API for managing Star Wars characters.
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+servers:
+  - url: ${API_BASE_URL}
+    description: API server
+paths:
+  /characters:
+    get:
+      summary: List all characters
+      operationId: listCharacters
+      responses:
+        '200':
+          description: A list of characters
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Character'
+    put:
+      summary: Add a new character
+      operationId: putCharacter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Character'
+      responses:
+        '201':
+          description: Character created
+  /characters/{id}:
+    get:
+      summary: Get a character by ID
+      operationId: getCharacter
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A single character
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Character'
+    delete:
+      summary: Delete a character by ID
+      operationId: deleteCharacter
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Character deleted
+components:
+  schemas:
+    Character:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        homeworld:
+          type: string
+        episodes:
+          type: array
+          items:
+            type: string

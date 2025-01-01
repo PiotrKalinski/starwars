@@ -1,0 +1,77 @@
+service: starwars
+
+frameworkVersion: '3'
+
+custom:
+  characterTableName: ${self:provider.stage}-StarWarsCharacters
+  putCharacterFunctionName: ${self:provider.stage}-putCharacter
+  getCharacterFunctionName: ${self:provider.stage}-getCharacter
+  listCharactersFunctionName: ${self:provider.stage}-listCharacters
+  deleteCharacterFunctionName: ${self:provider.stage}-deleteCharacter
+  dynamoDbThrottledRequestsAlarmName: ${self:provider.stage}-DynamoDbThrottledRequestsAlarm
+  currentStage: ${opt:stage, 'dev'}
+
+plugins:
+  - serverless-offline
+  # - serverless-plugin-datadog
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: ${file(./serverless.env.yaml):${self:provider.stage, 'default'}.AWS_REGION, 'us-east-1'}
+  stage: ${self:custom.currentStage}
+  environment:
+    CHARACTERS_TABLE: ${self:custom.characterTableName}
+    LOG_LEVEL: ${file(./serverless.env.yaml):${self:provider.stage, 'default'}.LOG_LEVEL, 'info'}
+  tags: ${file(./serverless-tags.yaml)}
+
+
+functions:
+  putCharacter:
+    name: ${self:custom.putCharacterFunctionName}
+    handler: dist/handlers/put-character.handler
+    events:
+      - http:
+          path: characters
+          method: put
+    logs:
+      level: ${self:provider.environment.LOG_LEVEL}
+    role: !GetAtt PutCharacterLambdaExecutionRole.Arn
+
+  getCharacter:
+    name: ${self:custom.getCharacterFunctionName}
+    handler: dist/handlers/get-character.handler
+    events:
+      - http:
+          path: characters/{id}
+          method: get
+          cors: true
+    logs:
+      level: ${self:provider.environment.LOG_LEVEL}
+    role: !GetAtt GetCharacterLambdaExecutionRole.Arn
+
+  listCharacters:
+    name: ${self:custom.listCharactersFunctionName}
+    handler: dist/handlers/list-character.handler
+    events:
+      - http:
+          path: characters
+          method: get
+          cors: true
+    logs:
+      level: ${self:provider.environment.LOG_LEVEL}
+    role: !GetAtt ListCharactersLambdaExecutionRole.Arn
+
+  deleteCharacter:
+    name: ${self:custom.deleteCharacterFunctionName}
+    handler: dist/handlers/delete-character.handler
+    events:
+      - http:
+          path: characters/{id}
+          method: delete
+    logs:
+      level: ${self:provider.environment.LOG_LEVEL}
+    role: !GetAtt DeleteCharacterLambdaExecutionRole.Arn
+
+resources:
+  - ${file(./serverless-resources.yaml)}
