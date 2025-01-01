@@ -11,9 +11,6 @@ custom:
   dynamoDbThrottledRequestsAlarmName: ${self:provider.stage}-DynamoDbThrottledRequestsAlarm
   currentStage: ${opt:stage, 'dev'}
 
-plugins:
-  - serverless-offline
-  # - serverless-plugin-datadog
 
 provider:
   name: aws

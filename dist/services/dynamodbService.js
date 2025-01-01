@@ -25,7 +25,7 @@ class DynamoDbService {
     async getItem(key) {
         const command = new lib_dynamodb_1.GetCommand({
             TableName: this.tableName,
-            Key: key
+            Key: key,
         });
         const result = await this.client.send(command);
         return result.Item ?? null;
@@ -36,7 +36,7 @@ class DynamoDbService {
     async putItem(item) {
         const command = new lib_dynamodb_1.PutCommand({
             TableName: this.tableName,
-            Item: item
+            Item: item,
         });
         return this.client.send(command);
     }
@@ -50,13 +50,13 @@ class DynamoDbService {
             updateExpressionParts.push(`${field} = :${field}`);
             expressionAttributeValues[`:${field}`] = value;
         });
-        const updateExpression = `SET ${updateExpressionParts.join(", ")}`;
+        const updateExpression = `SET ${updateExpressionParts.join(', ')}`;
         const command = new lib_dynamodb_1.UpdateCommand({
             TableName: this.tableName,
             Key: key,
             UpdateExpression: updateExpression,
             ExpressionAttributeValues: expressionAttributeValues,
-            ReturnValues: "ALL_NEW"
+            ReturnValues: 'ALL_NEW',
         });
         return this.client.send(command);
     }
@@ -66,7 +66,7 @@ class DynamoDbService {
     async deleteItem(key) {
         const command = new lib_dynamodb_1.DeleteCommand({
             TableName: this.tableName,
-            Key: key
+            Key: key,
         });
         return this.client.send(command);
     }
@@ -78,12 +78,12 @@ class DynamoDbService {
         const command = new lib_dynamodb_1.ScanCommand({
             TableName: this.tableName,
             Limit: limit,
-            ExclusiveStartKey: exclusiveStartKey
+            ExclusiveStartKey: exclusiveStartKey,
         });
         const output = await this.client.send(command);
         return {
             items: output.Items || [],
-            lastEvaluatedKey: output.LastEvaluatedKey
+            lastEvaluatedKey: output.LastEvaluatedKey,
         };
     }
 }

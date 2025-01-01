@@ -16,17 +16,17 @@ const characterService = new characterService_1.CharacterService();
 const handler = async (event) => {
     try {
         const { id } = event.pathParameters || {};
-        console.log("id", id);
-        console.log("event", event);
-        console.log("event.body", event.body);
+        console.log('id', id);
+        console.log('event', event);
+        console.log('event.body', event.body);
         if (!event.body) {
             return {
                 statusCode: 400,
-                body: JSON.stringify({ error: "Missing request body" }),
+                body: JSON.stringify({ error: 'Missing request body' }),
             };
         }
         const data = JSON.parse(event.body);
-        console.log("data", data);
+        console.log('data', data);
         const validationError = (0, validation_1.validateUpdateCharacter)(data);
         if (validationError) {
             return {
@@ -40,7 +40,7 @@ const handler = async (event) => {
             if (!existingCharacter) {
                 return {
                     statusCode: 404,
-                    body: JSON.stringify({ error: "Character not found" }),
+                    body: JSON.stringify({ error: 'Character not found' }),
                 };
             }
             const updatedCharacter = await characterService.updateCharacter(id, data);
@@ -58,10 +58,10 @@ const handler = async (event) => {
         }
     }
     catch (error) {
-        console.error("Error handling createOrUpdateCharacter:", error);
+        console.error('Error handling createOrUpdateCharacter:', error);
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: "Internal server error" }),
+            body: JSON.stringify({ error: 'Internal server error' }),
         };
     }
 };

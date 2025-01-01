@@ -180,13 +180,8 @@
 <a name='L115'></a><a href='#L115'>115</a>
 <a name='L116'></a><a href='#L116'>116</a>
 <a name='L117'></a><a href='#L117'>117</a>
-<a name='L118'></a><a href='#L118'>118</a>
-<a name='L119'></a><a href='#L119'>119</a>
-<a name='L120'></a><a href='#L120'>120</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L118'></a><a href='#L118'>118</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -271,6 +266,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -300,134 +297,131 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// src/services/dynamodbService.ts
+import { DynamoDBClient, DynamoDBClientConfig } from '@aws-sdk/client-dynamodb';
 import {
-    DynamoDBClient,
-    DynamoDBClientConfig
-  } from "@aws-sdk/client-dynamodb";
-  import {
-    GetCommand,
-    PutCommand,
-    UpdateCommand,
-    DeleteCommand,
-    ScanCommand,
-    GetCommandOutput,
-    PutCommandOutput,
-    UpdateCommandOutput,
-    DeleteCommandOutput,
-    ScanCommandOutput
-  } from "@aws-sdk/lib-dynamodb";
-  
+  GetCommand,
+  PutCommand,
+  UpdateCommand,
+  DeleteCommand,
+  ScanCommand,
+  GetCommandOutput,
+  PutCommandOutput,
+  UpdateCommandOutput,
+  DeleteCommandOutput,
+  ScanCommandOutput,
+} from '@aws-sdk/lib-dynamodb';
+&nbsp;
+/**
+ * A generic DynamoDB service (AWS SDK v3) that can be initialized with a table name.
+ * T represents the item type (for strong typing).
+ */
+export class DynamoDbService&lt;T extends Record&lt;string, any&gt;&gt; {
+  private client: DynamoDBClient;
+  private tableName: string;
+&nbsp;
   /**
-   * A generic DynamoDB service (AWS SDK v3) that can be initialized with a table name.
-   * T represents the item type (for strong typing).
+   * @param tableName - DynamoDB table name
+   * @param config - (Optional) Configuration for DynamoDBClient
    */
-  export class DynamoDbService&lt;T extends Record&lt;string, any&gt;&gt; {
-    private client: DynamoDBClient;
-    private tableName: string;
-  
-    /**
-     * @param tableName - DynamoDB table name
-     * @param config - (Optional) Configuration for DynamoDBClient
-     */
-    constructor(tableName: string, config?: DynamoDBClientConfig) {
-      this.tableName = tableName;
-      this.client = new DynamoDBClient(config || {});
-    }
-  
-    /**
-     * Get an item by its key.
-     */
-    public async getItem(key: Record&lt;string, unknown&gt;): Promise&lt;T | null&gt; {
-      const command = new GetCommand({
-        TableName: this.tableName,
-        Key: key
-      });
-      const result: GetCommandOutput = await this.client.send(command);
-      return (result.Item as T) ?? null;
-    }
-  
-    /**
-     * Put (create or overwrite) an item.
-     */
-    public async putItem(item: T): Promise&lt;PutCommandOutput&gt; {
-      const command = new PutCommand({
-        TableName: this.tableName,
-        Item: item
-      });
-      return this.client.send(command);
-    }
-  
-    /**
-     * Update an item. (Simple approach: fully custom update expression.)
-     */
-    public async updateItem(
-      key: Record&lt;string, unknown&gt;,
-      updates: Partial&lt;T&gt;
-    ): Promise&lt;UpdateCommandOutput&gt; {
-      const updateExpressionParts: string[] = [];
-      const expressionAttributeValues: Record&lt;string, unknown&gt; = {};
-  
-      Object.entries(updates).forEach(([field, value]) =&gt; {
-        updateExpressionParts.push(`${field} = :${field}`);
-        expressionAttributeValues[`:${field}`] = value;
-      });
-  
-      const updateExpression = `SET ${updateExpressionParts.join(", ")}`;
-  
-      const command = new UpdateCommand({
-        TableName: this.tableName,
-        Key: key,
-        UpdateExpression: updateExpression,
-        ExpressionAttributeValues: expressionAttributeValues,
-        ReturnValues: "ALL_NEW"
-      });
-      return this.client.send(command);
-    }
-  
-    /**
-     * Delete an item by its key.
-     */
-    public async deleteItem(key: Record&lt;string, unknown&gt;): Promise&lt;DeleteCommandOutput&gt; {
-      const command = new DeleteCommand({
-        TableName: this.tableName,
-        Key: key
-      });
-      return this.client.send(command);
-    }
-  
-    /**
-     * Scan with pagination. This scans a single page of results using DynamoDB's Limit and
-     * ExclusiveStartKey to handle "paging" at the DynamoDB level.
-     */
-    public async scanPaginated(
-        limit: number,
-        exclusiveStartKey?: Record&lt;string, any&gt;
-    ): Promise&lt;{ items: T[]; lastEvaluatedKey?: Record&lt;string, any&gt; }&gt; {
-        const command = new ScanCommand({
-        TableName: this.tableName,
-        Limit: limit,
-        ExclusiveStartKey: exclusiveStartKey
-        });
-&nbsp;
-        const output: ScanCommandOutput = await this.client.send(command);
-&nbsp;
-        return {
-        items: (output.Items as T[]) || <span class="branch-1 cbranch-no" title="branch not covered" >[],</span>
-        lastEvaluatedKey: output.LastEvaluatedKey
-        };
-    }
-    
+  constructor(tableName: string, config?: DynamoDBClientConfig) {
+    this.tableName = tableName;
+    this.client = new DynamoDBClient(config || {});
   }
-  </pre></td></tr></table></pre>
+&nbsp;
+  /**
+   * Get an item by its key.
+   */
+  public async getItem(key: Record&lt;string, unknown&gt;): Promise&lt;T | null&gt; {
+    const command = new GetCommand({
+      TableName: this.tableName,
+      Key: key,
+    });
+    const result: GetCommandOutput = await this.client.send(command);
+    return (result.Item as T) ?? null;
+  }
+&nbsp;
+  /**
+   * Put (create or overwrite) an item.
+   */
+  public async putItem(item: T): Promise&lt;PutCommandOutput&gt; {
+    const command = new PutCommand({
+      TableName: this.tableName,
+      Item: item,
+    });
+    return this.client.send(command);
+  }
+&nbsp;
+  /**
+   * Update an item. (Simple approach: fully custom update expression.)
+   */
+  public async updateItem(
+    key: Record&lt;string, unknown&gt;,
+    updates: Partial&lt;T&gt;,
+  ): Promise&lt;UpdateCommandOutput&gt; {
+    const updateExpressionParts: string[] = [];
+    const expressionAttributeValues: Record&lt;string, unknown&gt; = {};
+&nbsp;
+    Object.entries(updates).forEach(([field, value]) =&gt; {
+      updateExpressionParts.push(`${field} = :${field}`);
+      expressionAttributeValues[`:${field}`] = value;
+    });
+&nbsp;
+    const updateExpression = `SET ${updateExpressionParts.join(', ')}`;
+&nbsp;
+    const command = new UpdateCommand({
+      TableName: this.tableName,
+      Key: key,
+      UpdateExpression: updateExpression,
+      ExpressionAttributeValues: expressionAttributeValues,
+      ReturnValues: 'ALL_NEW',
+    });
+    return this.client.send(command);
+  }
+&nbsp;
+  /**
+   * Delete an item by its key.
+   */
+  public async deleteItem(
+    key: Record&lt;string, unknown&gt;,
+  ): Promise&lt;DeleteCommandOutput&gt; {
+    const command = new DeleteCommand({
+      TableName: this.tableName,
+      Key: key,
+    });
+    return this.client.send(command);
+  }
+&nbsp;
+  /**
+   * Scan with pagination. This scans a single page of results using DynamoDB's Limit and
+   * ExclusiveStartKey to handle "paging" at the DynamoDB level.
+   */
+  public async scanPaginated(
+    limit: number,
+    exclusiveStartKey?: Record&lt;string, any&gt;,
+  ): Promise&lt;{ items: T[]; lastEvaluatedKey?: Record&lt;string, any&gt; }&gt; {
+    const command = new ScanCommand({
+      TableName: this.tableName,
+      Limit: limit,
+      ExclusiveStartKey: exclusiveStartKey,
+    });
+&nbsp;
+    const output: ScanCommandOutput = await this.client.send(command);
+&nbsp;
+    return {
+      items: (output.Items as T[]) || <span class="branch-1 cbranch-no" title="branch not covered" >[],</span>
+      lastEvaluatedKey: output.LastEvaluatedKey,
+    };
+  }
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-01-01T20:13:28.806Z
+                at 2025-01-01T20:59:01.776Z
             </div>
         <script src="../prettify.js"></script>
         <script>

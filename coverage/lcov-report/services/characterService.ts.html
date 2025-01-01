@@ -141,7 +141,10 @@
 <a name='L76'></a><a href='#L76'>76</a>
 <a name='L77'></a><a href='#L77'>77</a>
 <a name='L78'></a><a href='#L78'>78</a>
-<a name='L79'></a><a href='#L79'>79</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">4x</span>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -180,12 +183,15 @@
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -219,11 +225,11 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { v4 as uuidv4 } from "uuid";
-import { Character } from "../models/character";
-import { DynamoDbService } from "./dynamodbService";
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { v4 as uuidv4 } from 'uuid';
+import { Character } from '../models/character';
+import { DynamoDbService } from './dynamodbService';
 &nbsp;
-const TABLE_NAME = process.env.CHARACTERS_TABLE || "StarWarsCharacters";
+const TABLE_NAME = process.env.CHARACTERS_TABLE || 'StarWarsCharacters';
 const dbService = new DynamoDbService&lt;Character&gt;(TABLE_NAME);
 &nbsp;
 export class CharacterService {
@@ -245,35 +251,38 @@ export class CharacterService {
     return await dbService.getItem({ id });
   }
 &nbsp;
- /**
+  /**
    * List characters with native DynamoDB pagination.
    * @param limit The maximum number of items to return in one "page"
    * @param lastEvaluatedKey The last page key to continue from, if any
    */
-    public async listCharacters(
-      limit: number,
-      lastEvaluatedKey?: string
-    ): Promise&lt;{ items: Character[]; lastEvaluatedKey?: string }&gt; {
-      // Convert the lastEvaluatedKey string to a DynamoDB key object, if it exists
-      const exclusiveStartKey = lastEvaluatedKey ? { id: lastEvaluatedKey } : undefined;
+  public async listCharacters(
+    limit: number,
+    lastEvaluatedKey?: string,
+  ): Promise&lt;{ items: Character[]; lastEvaluatedKey?: string }&gt; {
+    // Convert the lastEvaluatedKey string to a DynamoDB key object, if it exists
+    const exclusiveStartKey = lastEvaluatedKey
+      ? { id: lastEvaluatedKey }
+      : undefined;
 &nbsp;
-      // Perform a paginated scan
-      const { items, lastEvaluatedKey: newKey } = await dbService.scanPaginated(limit, exclusiveStartKey);
+    // Perform a paginated scan
+    const { items, lastEvaluatedKey: newKey } = await dbService.scanPaginated(
+      limit,
+      exclusiveStartKey,
+    );
 &nbsp;
-      // If there's a newLastEvaluatedKey returned, store the 'id' property in lastEvaluatedKey
-      const newLastEvaluatedKey = newKey?.id
-        ? String(newKey.id)
-        : <span class="branch-1 cbranch-no" title="branch not covered" >undefined;</span>
+    // If there's a newLastEvaluatedKey returned, store the 'id' property in lastEvaluatedKey
+    const newLastEvaluatedKey = newKey?.id ? String(newKey.id) : <span class="branch-1 cbranch-no" title="branch not covered" >undefined;</span>
 &nbsp;
-      return {
-        items,
-        lastEvaluatedKey: newLastEvaluatedKey,
-      };
-    }
+    return {
+      items,
+      lastEvaluatedKey: newLastEvaluatedKey,
+    };
+  }
 &nbsp;
   public async updateCharacter(
     id: string,
-    data: Partial&lt;Character&gt;
+    data: Partial&lt;Character&gt;,
   ): Promise&lt;Character | null&gt; {
     const existing = await this.getCharacter(id);
     <span class="missing-if-branch" title="if path not taken" >I</span>if (!existing) <span class="cstat-no" title="statement not covered" >return null;</span>
@@ -304,7 +313,7 @@ export class CharacterService {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-01-01T20:13:28.806Z
+                at 2025-01-01T20:59:01.776Z
             </div>
         <script src="../prettify.js"></script>
         <script>

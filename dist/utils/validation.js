@@ -6,8 +6,8 @@ exports.validateUpdateCharacter = validateUpdateCharacter;
 const zod_1 = require("zod");
 const starWarsEpisodes_1 = require("./starWarsEpisodes");
 const ERROR_MESSAGES = {
-    nameRequired: "Name is required",
-    episodesArray: "Episodes must be an array",
+    nameRequired: 'Name is required',
+    episodesArray: 'Episodes must be an array',
 };
 /**
  * Checks if every episode in the input array

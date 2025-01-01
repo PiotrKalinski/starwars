@@ -16,7 +16,7 @@ const handler = async (event) => {
         if (!character) {
             return {
                 statusCode: 404,
-                body: JSON.stringify({ error: "Character not found" }),
+                body: JSON.stringify({ error: 'Character not found' }),
             };
         }
         return {
@@ -25,10 +25,10 @@ const handler = async (event) => {
         };
     }
     catch (error) {
-        console.error("Error retrieving character:", error);
+        console.error('Error retrieving character:', error);
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: "Internal server error" }),
+            body: JSON.stringify({ error: 'Internal server error' }),
         };
     }
 };
