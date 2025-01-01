@@ -22,12 +22,13 @@ This project is a serverless REST API for managing Star Wars characters, built u
    npm run build
    ```
 
-3. **Set permissions for the deployment script:**
+3. **Set permissions for the deployment and removal scripts:**
 
-   Ensure the `deploy.sh` script is executable:
+   Ensure the `deploy.sh` and `remove.sh` scripts are executable:
 
    ```bash
    chmod +x scripts/deploy.sh
+   chmod +x scripts/remove.sh
    ```
 
 ## Deployment
@@ -35,10 +36,20 @@ This project is a serverless REST API for managing Star Wars characters, built u
 To deploy the service, use the following command:
 
 ```bash
-npm run deploy -- --stage=xxx
+npm run deploy -- --stage=<stage-name>
 ```
 
-Replace `xxx` with your configured profile in AWS config
+Replace `<stage-name>` with your configured profile in AWS config.
+
+## Removal
+
+To remove the deployed service, use the following command:
+
+```bash
+npm run remove -- --stage=<stage-name>
+```
+
+This will remove the stack for the specified stage.
 
 ## Running Locally
 
@@ -63,7 +74,7 @@ npm test
 After a successful deployment, generate the OpenAPI documentation with the deployed URL:
 
 ```bash
-npm run generate:docs -- --url=https://xxxx.execute-api.us-east-1.amazonaws.com/xxx
+npm run generate:docs -- --url=https://<api-id>.execute-api.us-east-1.amazonaws.com/<stage-name>
 ```
 
 This command will replace the placeholder in your `swagger.yaml` with the provided URL and output the updated file to `dist/swagger.yaml`.
@@ -74,8 +85,8 @@ Environment variables are managed through `serverless.env.yaml` and `serverless-
 
 ## Resources
 
-- **DynamoDB Table:** `MyDynamoDbTable`
-- **CloudWatch Alarm:** `MyDynamoDbThrottledRequestsAlarm`
+- **DynamoDB Table:** `<stage-name>-StarWarsCharacters`
+- **CloudWatch Alarm:** `<stage-name>-DynamoDbThrottledRequestsAlarm`
 
 ## License
 

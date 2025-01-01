@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc",
     "deploy": "npm run build && ./scripts/deploy.sh",
-    "remove": "node -e \"const { execSync } = require('child_process'); const stageArg = process.argv.find(a => a.startsWith('--stage=')); const stage = stageArg ? stageArg.split('=')[1] : 'dev'; execSync(\\`serverless remove --stage \\${stage} --aws-profile \\${stage}\\`, { stdio: 'inherit' });\"",
+    "remove": "./scripts/remove.sh",
     "test": "jest --coverage",
     "generate:docs": "node scripts/generateDocs.js",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
