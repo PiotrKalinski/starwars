@@ -51,15 +51,6 @@ npm run remove -- --stage=<stage-name>
 
 This will remove the stack for the specified stage.
 
-## Running Locally
-
-To run the service locally, use:
-
-```bash
-npm start
-```
-
-This will start the serverless-offline plugin, simulating AWS services locally.
 
 ## Testing
 
